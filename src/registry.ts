@@ -3,7 +3,10 @@ import type { LocaleData } from './types.js';
 const locales = new Map<string, Record<string, string>>();
 
 export function registerLocale(data: LocaleData): void {
-  locales.set(data.locale, data.countries);
+  if (!data || typeof data.locale !== 'string' || !data.countries) {
+    throw new Error('registerLocale: data must have a string "locale" and an object "countries"');
+  }
+  locales.set(data.locale, { ...data.countries });
 }
 
 export function getSupportedLocales(): string[] {

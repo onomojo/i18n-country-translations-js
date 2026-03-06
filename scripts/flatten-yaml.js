@@ -4,15 +4,14 @@
  * Usage: node scripts/flatten-yaml.js <path-to-ruby-gem-locales-dir1> [dir2] ...
  */
 import { readFileSync, writeFileSync, readdirSync } from 'fs';
-import { join, basename } from 'path';
+import { join } from 'path';
 import { parse } from 'yaml';
 
 const sourceDirs = process.argv.slice(2);
 if (sourceDirs.length === 0) {
-  sourceDirs.push(
-    '/home/onomojo/Work/i18n-country-translations/rails/locale/iso_639-1',
-    '/home/onomojo/Work/i18n-country-translations/rails/locale/unicode_supported'
-  );
+  console.error('Usage: node scripts/flatten-yaml.js <source-dir1> [source-dir2] ...');
+  console.error('Example: node scripts/flatten-yaml.js ../i18n-country-translations/rails/locale/iso_639-1');
+  process.exit(1);
 }
 
 const outDir = new URL('../data/', import.meta.url).pathname;

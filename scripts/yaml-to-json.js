@@ -16,7 +16,12 @@ for (const file of files) {
   const parsed = parse(raw);
   const locale = basename(file, '.yml');
 
-  const jsonData = { locale, countries: parsed };
+  // Ensure all keys and values are strings (guard against YAML boolean coercion)
+  const countries = {};
+  for (const [key, val] of Object.entries(parsed)) {
+    countries[String(key)] = String(val);
+  }
+  const jsonData = { locale, countries };
   writeFileSync(
     join(outDir, `${locale}.json`),
     JSON.stringify(jsonData, null, 2) + '\n',

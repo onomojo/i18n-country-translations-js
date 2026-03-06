@@ -20,5 +20,7 @@ export function getAlpha2Code(name: string, locale: string): string | undefined 
 }
 
 export function getNames(locale: string): Record<string, string> | undefined {
-  return getLocaleData(locale);
+  const data = getLocaleData(locale);
+  if (!data) return undefined;
+  return { ...data };
 }

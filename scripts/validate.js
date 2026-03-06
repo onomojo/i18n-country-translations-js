@@ -20,9 +20,16 @@ for (const file of files) {
   const parsed = parse(raw);
   const keys = Object.keys(parsed);
 
-  // Check NO is not parsed as boolean
+  // Check NO is not parsed as boolean (keys)
   if ('false' in parsed || 'true' in parsed) {
     console.error(`${file}: YAML boolean issue detected — "NO" or similar key parsed as boolean. Ensure all keys are quoted.`);
+    errors++;
+  }
+
+  // Check no values were parsed as booleans (e.g. unquoted NO/YES in values)
+  const boolValues = Object.entries(parsed).filter(([, v]) => typeof v === 'boolean');
+  if (boolValues.length > 0) {
+    console.error(`${file}: ${boolValues.length} values parsed as boolean instead of string: ${boolValues.slice(0, 3).map(([k]) => k).join(', ')}...`);
     errors++;
   }
 
