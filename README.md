@@ -27,10 +27,12 @@ getNames('de');                   // { US: "Vereinigte Staaten", DE: "Deutschlan
 
 ```typescript
 import { registerLocale } from 'i18n-country-translations';
+import { createRequire } from 'module';
 import fs from 'fs';
 import path from 'path';
 
-const langsDir = path.join(require.resolve('i18n-country-translations'), '..', '..', 'langs');
+const require = createRequire(import.meta.url);
+const langsDir = path.join(path.dirname(require.resolve('i18n-country-translations')), '..', 'langs');
 for (const file of fs.readdirSync(langsDir).filter(f => f.endsWith('.json'))) {
   registerLocale(JSON.parse(fs.readFileSync(path.join(langsDir, file), 'utf8')));
 }
