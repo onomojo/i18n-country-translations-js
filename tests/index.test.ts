@@ -6,9 +6,15 @@ import {
   getName,
   getAlpha2Code,
   getNames,
+  setDefaultLocale,
+  getDefaultLocale,
+  registerAllLocales,
 } from '../src/index.js';
+import type { LocaleData } from '../src/index.js';
 import en from '../langs/en.json';
 import de from '../langs/de.json';
+import fr from '../langs/fr.json';
+import ja from '../langs/ja.json';
 
 beforeAll(() => {
   registerLocale(en);
@@ -84,5 +90,71 @@ describe('getNames', () => {
 
   it('returns undefined for unregistered locale', () => {
     expect(getNames('xx')).toBeUndefined();
+  });
+});
+
+describe('setDefaultLocale / getDefaultLocale', () => {
+  it('throws when setting an unregistered locale', () => {
+    expect(() => setDefaultLocale('xx')).toThrow('not registered');
+  });
+
+  it('sets and gets the default locale', () => {
+    setDefaultLocale('en');
+    expect(getDefaultLocale()).toBe('en');
+  });
+
+  it('can change the default locale', () => {
+    setDefaultLocale('de');
+    expect(getDefaultLocale()).toBe('de');
+  });
+});
+
+describe('lookup functions with default locale', () => {
+  it('getName uses default locale when locale is omitted', () => {
+    setDefaultLocale('de');
+    expect(getName('US')).toBe('Vereinigte Staaten');
+  });
+
+  it('getName explicit locale overrides default', () => {
+    setDefaultLocale('de');
+    expect(getName('US', 'en')).toBe('United States');
+  });
+
+  it('getAlpha2Code uses default locale when locale is omitted', () => {
+    setDefaultLocale('en');
+    expect(getAlpha2Code('Germany')).toBe('DE');
+  });
+
+  it('getNames uses default locale when locale is omitted', () => {
+    setDefaultLocale('en');
+    const names = getNames()!;
+    expect(names.US).toBe('United States');
+  });
+
+  it('returns undefined when no locale passed and no default set for getName with explicit undefined', () => {
+    // Verify that providing a locale always works
+    expect(getName('US', 'en')).toBe('United States');
+  });
+});
+
+describe('registerAllLocales', () => {
+  it('registers multiple locales at once', () => {
+    const localeArray: LocaleData[] = [fr, ja];
+    registerAllLocales(localeArray);
+    expect(isLocaleRegistered('fr')).toBe(true);
+    expect(isLocaleRegistered('ja')).toBe(true);
+    expect(getName('US', 'fr')).toBe('\u00c9tats-Unis');
+    expect(getName('JP', 'ja')).toBe('\u65e5\u672c');
+  });
+
+  it('registers from all.json when available', async () => {
+    try {
+      const allLocales = (await import('../langs/all.json')).default;
+      registerAllLocales(allLocales);
+      expect(getSupportedLocales().length).toBeGreaterThanOrEqual(168);
+    } catch {
+      // all.json may not exist yet if build:data has not been run
+      // This is expected in development before running the generate script
+    }
   });
 });

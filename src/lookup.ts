@@ -1,15 +1,21 @@
-import { getLocaleData } from './registry.js';
+import { getLocaleData, getDefaultLocale } from './registry.js';
 
-export function getName(code: string, locale: string): string | undefined {
-  if (typeof code !== 'string' || typeof locale !== 'string') return undefined;
-  const data = getLocaleData(locale);
+function resolveLocale(locale?: string): string | undefined {
+  return locale ?? getDefaultLocale();
+}
+
+export function getName(code: string, locale?: string): string | undefined {
+  const resolved = resolveLocale(locale);
+  if (typeof code !== 'string' || resolved === undefined) return undefined;
+  const data = getLocaleData(resolved);
   if (!data) return undefined;
   return data[code.toUpperCase()];
 }
 
-export function getAlpha2Code(name: string, locale: string): string | undefined {
-  if (typeof name !== 'string' || typeof locale !== 'string') return undefined;
-  const data = getLocaleData(locale);
+export function getAlpha2Code(name: string, locale?: string): string | undefined {
+  const resolved = resolveLocale(locale);
+  if (typeof name !== 'string' || resolved === undefined) return undefined;
+  const data = getLocaleData(resolved);
   if (!data) return undefined;
 
   const lowerName = name.toLowerCase();
@@ -21,9 +27,10 @@ export function getAlpha2Code(name: string, locale: string): string | undefined 
   return undefined;
 }
 
-export function getNames(locale: string): Record<string, string> | undefined {
-  if (typeof locale !== 'string') return undefined;
-  const data = getLocaleData(locale);
+export function getNames(locale?: string): Record<string, string> | undefined {
+  const resolved = resolveLocale(locale);
+  if (resolved === undefined) return undefined;
+  const data = getLocaleData(resolved);
   if (!data) return undefined;
   return { ...data };
 }
