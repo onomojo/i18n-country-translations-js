@@ -3,8 +3,15 @@ import type { LocaleData } from './types.js';
 const locales = new Map<string, Record<string, string>>();
 
 export function registerLocale(data: LocaleData): void {
-  if (!data || typeof data.locale !== 'string' || !data.countries) {
-    throw new Error('registerLocale: data must have a string "locale" and an object "countries"');
+  if (
+    !data ||
+    typeof data.locale !== 'string' ||
+    data.locale.length === 0 ||
+    typeof data.countries !== 'object' ||
+    data.countries === null ||
+    Array.isArray(data.countries)
+  ) {
+    throw new Error('registerLocale: data must have a non-empty string "locale" and a non-null object "countries"');
   }
   locales.set(data.locale, { ...data.countries });
 }

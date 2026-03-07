@@ -3,7 +3,7 @@
  * Reads the Ruby gem's YAML locale files and produces flattened YAML in data/
  * Usage: node scripts/flatten-yaml.js <path-to-ruby-gem-locales-dir1> [dir2] ...
  */
-import { readFileSync, writeFileSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { parse } from 'yaml';
 
@@ -15,6 +15,7 @@ if (sourceDirs.length === 0) {
 }
 
 const outDir = new URL('../data/', import.meta.url).pathname;
+mkdirSync(outDir, { recursive: true });
 let total = 0;
 
 for (const sourceDir of sourceDirs) {
@@ -33,7 +34,7 @@ for (const sourceDir of sourceDirs) {
 
     // Write flat YAML — quote ALL keys to avoid boolean issues (NO, AN, etc.)
     const lines = Object.entries(countries).map(([key, val]) => {
-      const escapedVal = String(val).replace(/"/g, '\\"');
+      const escapedVal = String(val).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       return `"${key}": "${escapedVal}"`;
     });
 
