@@ -59,7 +59,7 @@
     "node": ">=14"
   },
   "devDependencies": {
-    "i18n-country-translations-data": "github:onomojo/i18n-country-translations-data#v1.1.0",
+    "i18n-country-translations-data": "^1.1.0",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
     "vitest": "^2.0.0"
