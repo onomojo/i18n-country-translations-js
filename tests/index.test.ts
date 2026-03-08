@@ -9,16 +9,14 @@ import {
   setDefaultLocale,
   getDefaultLocale,
   registerAllLocales,
+  loadLocale,
+  loadAllLocales,
 } from '../src/index.js';
 import type { LocaleData } from '../src/index.js';
-import en from '../langs/en.json';
-import de from '../langs/de.json';
-import fr from '../langs/fr.json';
-import ja from '../langs/ja.json';
 
 beforeAll(() => {
-  registerLocale(en);
-  registerLocale(de);
+  loadLocale('en');
+  loadLocale('de');
 });
 
 describe('registry', () => {
@@ -137,24 +135,32 @@ describe('lookup functions with default locale', () => {
   });
 });
 
-describe('registerAllLocales', () => {
-  it('registers multiple locales at once', () => {
-    const localeArray: LocaleData[] = [fr, ja];
-    registerAllLocales(localeArray);
+describe('loadLocale / loadAllLocales', () => {
+  it('loads a locale from the data package', () => {
+    loadLocale('fr');
     expect(isLocaleRegistered('fr')).toBe(true);
-    expect(isLocaleRegistered('ja')).toBe(true);
     expect(getName('US', 'fr')).toBe('\u00c9tats-Unis');
-    expect(getName('JP', 'ja')).toBe('\u65e5\u672c');
   });
 
-  it('registers from all.json when available', async () => {
-    try {
-      const allLocales = (await import('../langs/all.json')).default;
-      registerAllLocales(allLocales);
-      expect(getSupportedLocales().length).toBeGreaterThanOrEqual(168);
-    } catch {
-      // all.json may not exist yet if build:data has not been run
-      // This is expected in development before running the generate script
-    }
+  it('loads all locales from the data package', () => {
+    loadAllLocales();
+    expect(getSupportedLocales().length).toBeGreaterThanOrEqual(168);
+  });
+});
+
+describe('registerAllLocales', () => {
+  it('registers multiple locales at once', () => {
+    loadLocale('fr');
+    loadLocale('ja');
+    const frData: LocaleData = { locale: 'fr-test', countries: { US: '\u00c9tats-Unis' } };
+    const jaData: LocaleData = { locale: 'ja-test', countries: { JP: '\u65e5\u672c' } };
+    registerAllLocales([frData, jaData]);
+    expect(isLocaleRegistered('fr-test')).toBe(true);
+    expect(isLocaleRegistered('ja-test')).toBe(true);
+  });
+
+  it('registers from loadAllLocales', () => {
+    loadAllLocales();
+    expect(getSupportedLocales().length).toBeGreaterThanOrEqual(168);
   });
 });

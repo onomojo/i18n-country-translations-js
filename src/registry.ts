@@ -1,7 +1,36 @@
+import { createRequire } from 'module';
+import { join, basename } from 'path';
+import { readdirSync, readFileSync } from 'fs';
 import type { LocaleData } from './types.js';
 
 const locales = new Map<string, Record<string, string>>();
 let defaultLocale: string | undefined;
+
+function resolveDataDir(): string {
+  const require_ = createRequire(import.meta.url);
+  return join(require_.resolve('i18n-country-translations-data/package.json'), '..', 'data');
+}
+
+/** Load a single locale from the i18n-country-translations-data package and register it. */
+export function loadLocale(locale: string): void {
+  const dataDir = resolveDataDir();
+  const filePath = join(dataDir, `${locale}.json`);
+  const raw = readFileSync(filePath, 'utf8');
+  const countries = JSON.parse(raw);
+  locales.set(locale, countries);
+}
+
+/** Load all available locales from the i18n-country-translations-data package. */
+export function loadAllLocales(): void {
+  const dataDir = resolveDataDir();
+  const files = readdirSync(dataDir).filter(f => f.endsWith('.json'));
+  for (const file of files) {
+    const locale = basename(file, '.json');
+    const raw = readFileSync(join(dataDir, file), 'utf8');
+    const countries = JSON.parse(raw);
+    locales.set(locale, countries);
+  }
+}
 
 export function setDefaultLocale(locale: string): void {
   if (!locales.has(locale)) {
